@@ -70,6 +70,11 @@ class Install extends BasicInstall
             array($this, 'initClonedBlocksPermission'),
             -120
         );
+        $events->attach(
+            'install.post',
+            array($this, 'initCategoryPermission'),
+            -200
+        );
         parent::attachDefaultListeners();
         return $this;
     }
@@ -94,16 +99,16 @@ class Install extends BasicInstall
             'id'          => null,
             'name'        => 'root',
             'slug'        => 'root',
-            'title'       => __('Root'),
-            'description' => __('Module root category'),
+            'title'       => _a('Root'),
+            'description' => _a('Module root category'),
         );
         $result = $model->add($data);
         $defaultCategory = array(
             'id'          => null,
             'name'        => 'default',
             'slug'        => 'slug',
-            'title'       => __('Default'),
-            'description' => __('The default category can not be delete, but can be modified!'),
+            'title'       => _a('Default'),
+            'description' => _a('The default category can not be delete, but can be modified!'),
         );
         $parent = $model->select(array('name' => 'root'))->current();
         $model->add($defaultCategory, $parent);
@@ -396,6 +401,42 @@ EOD;
             $sql .=<<<VALUE
 ('block-{$row->id}', '{$module}', 'front', 'guest'),
 ('block-{$row->id}', '{$module}', 'front', 'member'),
+
+VALUE;
+        }
+        $sql = rtrim(trim($sql), ',') . ';';
+        
+        // Insert data
+        try {
+            Pi::db()->getAdapter()->query($sql, 'execute');
+        } catch (\Exception $exception) {
+            return false;
+        }
+        
+        return true;
+    }
+    
+    public function initCategoryPermission(Event $e)
+    {
+        $module = $this->event->getParam('module');
+        
+        // Get permission table name
+        $tableName = Pi::model('permission_rule')->getTable();
+        $sql = <<<EOD
+INSERT INTO `{$tableName}` (`resource`, `module`, `section`, `role`) VALUES 
+
+EOD;
+
+        // Get admin role name
+        $roles = Pi::user()->getRole(1, 'admin');
+        $role  = array_shift($roles);
+
+        // Get all add categories
+        $model = Pi::model('category', $module);
+        $rowset = $model->select(array());
+        foreach ($rowset as $row) {
+            $sql .=<<<VALUE
+('category-{$row->name}', '{$module}', 'admin', '{$role}'),
 
 VALUE;
         }

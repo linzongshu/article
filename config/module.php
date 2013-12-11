@@ -15,8 +15,8 @@
 return array(
     // Module meta
     'meta'         => array(
-        'title'         => __('Article'),
-        'description'   => __('General module for content management.'),
+        'title'         => _a('Article'),
+        'description'   => _a('General module for content management.'),
         'version'       => '1.0.1-beta.1',
         'license'       => 'New BSD',
         'logo'          => 'image/logo.png',
@@ -25,10 +25,11 @@ return array(
     ),
     // Author information
     'author'        => array(
-        'name'          => 'Zongshu Lin',
-        'email'         => 'zongshu@eefocus.com',
-        'website'       => 'http://www.github.com/linzongshu',
-        'credits'       => 'Pi Engine Team.'
+        'Name'          => 'Zongshu Lin',
+        'Email'         => 'zongshu@eefocus.com',
+        'Website'       => 'http://www.github.com/linzongshu',
+        'QA'            => '@lavenderli',
+        'Credits'       => 'Pi Engine Team.'
     ),
     // Module dependency: list of module directory names, optional
     'dependency'    => array(
